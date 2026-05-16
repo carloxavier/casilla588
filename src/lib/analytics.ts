@@ -22,7 +22,8 @@ export type EventName =
   | "view_result"
   | "cta_viewed"
   | "email_submitted"
-  | "email_error";
+  | "email_error"
+  | "w8ben_toggled";
 
 function getOrCreateSessionId(): string {
   if (typeof window === "undefined") return "ssr";

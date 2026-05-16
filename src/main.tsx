@@ -6,6 +6,7 @@ import "./styles/layout.css";
 import "./styles/masthead.css";
 import "./styles/doc-head.css";
 import "./styles/demo-anim.css";
+import "./styles/settings.css";
 import "./styles/input.css";
 import "./styles/positions.css";
 import "./styles/key-moment.css";

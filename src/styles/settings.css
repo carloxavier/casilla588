@@ -1,0 +1,45 @@
+.settings {
+  margin-bottom: var(--gap-lg);
+}
+
+.settings-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-sm);
+  padding: var(--gap-md) var(--gap-lg);
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--ink);
+  transition: border-color 120ms ease;
+}
+
+.settings-row:hover {
+  border-color: var(--ink-4);
+}
+
+.settings-row input[type="checkbox"] {
+  margin-top: 4px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.settings-row abbr[title] {
+  font-family: var(--mono);
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--ink-4);
+  cursor: help;
+}
+
+.settings-hint {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--ink-3);
+}

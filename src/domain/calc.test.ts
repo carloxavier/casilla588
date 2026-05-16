@@ -93,6 +93,60 @@ describe("calcPosition", () => {
   });
 });
 
+describe("W-8BEN toggle", () => {
+  it("default (no W-8BEN): US position has 30% retention and 15% exceso", () => {
+    const r = calcPosition(fullYear("KO", 100), "KO", 2025);
+    expect(r!.retOrigen).toBeCloseTo(r!.bruto * 0.3, 4);
+    expect(r!.excesoOrigen).toBeCloseTo(r!.bruto * 0.15, 4);
+  });
+
+  it("with W-8BEN: US retention drops to 15% and exceso goes to 0", () => {
+    const r = calcPosition(fullYear("KO", 100), "KO", 2025, { hasW8Ben: true });
+    expect(r!.retOrigen).toBeCloseTo(r!.bruto * 0.15, 4);
+    expect(r!.excesoOrigen).toBe(0);
+    // 588 deduction remains capped at treaty rate
+    expect(r!.recuperable588).toBeCloseTo(r!.bruto * 0.15, 4);
+    // After full treaty offset, IRPF tras deducción = max(0, 19% - 15%) * bruto
+    expect(r!.irpfTrasDeduccion).toBeCloseTo(r!.bruto * (0.19 - 0.15), 4);
+  });
+
+  it("with W-8BEN: Swiss position is unaffected (toggle only applies to US)", () => {
+    const off = calcPosition(fullYear("NESN", 10), "NESN", 2025);
+    const on = calcPosition(fullYear("NESN", 10), "NESN", 2025, { hasW8Ben: true });
+    expect(on!.retOrigen).toBeCloseTo(off!.retOrigen, 6);
+    expect(on!.excesoOrigen).toBeCloseTo(off!.excesoOrigen, 6);
+    expect(on!.netoFinal).toBeCloseTo(off!.netoFinal, 6);
+  });
+
+  it("with W-8BEN: UK position is irrelevant (0% nominal, nothing to reduce)", () => {
+    const off = calcPosition(fullYear("SHEL", 100), "SHEL", 2025);
+    const on = calcPosition(fullYear("SHEL", 100), "SHEL", 2025, { hasW8Ben: true });
+    expect(on!.retOrigen).toBe(off!.retOrigen);
+    expect(on!.excesoOrigen).toBe(off!.excesoOrigen);
+  });
+
+  it("calcPortfolio with W-8BEN: mixed cartera only changes US numbers", () => {
+    const txs: Transaction[] = [
+      { ticker: "KO", date: "2025-01-01", shares: 100 }, // US
+      { ticker: "NESN", date: "2025-01-01", shares: 10 }, // CH
+      { ticker: "SHEL", date: "2025-01-01", shares: 100 }, // UK
+    ];
+    const off = calcPortfolio(txs, 2025);
+    const on = calcPortfolio(txs, 2025, { hasW8Ben: true });
+    const koOff = off.positions.find((p) => p.ticker === "KO")!;
+    const koOn = on.positions.find((p) => p.ticker === "KO")!;
+    expect(koOn.retOrigen).toBeLessThan(koOff.retOrigen);
+    expect(koOn.excesoOrigen).toBe(0);
+    // Non-US positions unchanged
+    expect(on.positions.find((p) => p.ticker === "NESN")!.retOrigen).toBe(
+      off.positions.find((p) => p.ticker === "NESN")!.retOrigen,
+    );
+    expect(on.positions.find((p) => p.ticker === "SHEL")!.retOrigen).toBe(
+      off.positions.find((p) => p.ticker === "SHEL")!.retOrigen,
+    );
+  });
+});
+
 describe("calcPortfolio", () => {
   it("aggregates totals across mixed countries", () => {
     const txs: Transaction[] = [
