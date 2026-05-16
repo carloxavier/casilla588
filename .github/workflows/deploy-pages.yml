@@ -3,10 +3,20 @@
 # Required GitHub configuration:
 #   1. Settings -> Pages: set "Source" to "GitHub Actions".
 #   2. Settings -> Secrets and variables -> Actions -> Variables tab, add:
-#        VITE_WAITLIST_URL  - the deployed Supabase function URL, e.g.
-#                             https://<project-ref>.functions.supabase.co/waitlist-signup
-#      (Use a Variable, not a Secret: the URL is embedded in the public bundle
-#      and is not sensitive.)
+#        WAITLIST_URL      - the deployed Supabase function URL, e.g.
+#                            https://<project-ref>.functions.supabase.co/waitlist-signup
+#        SUPABASE_ANON_KEY - the project's anon public key (Project Settings -> API).
+#      (Variables, not Secrets: they end up in the public bundle and are not
+#      sensitive. The anon key is meant to be public.)
+#
+#   The workflow remaps these to the VITE_*-prefixed env vars Vite needs at
+#   build time. The VITE_ prefix is a Vite convention: only env vars starting
+#   with it are exposed to client-side code. We keep the GitHub-side names
+#   short and tool-agnostic.
+#
+#   VITE_SUPABASE_URL is derived at build time from the SUPABASE_PROJECT_REF
+#   secret that the deploy-supabase workflow already uses, so it doesn't need
+#   its own variable.
 #
 # This workflow only references vars/secrets contexts; it does not read any
 # user-controlled github.event.* fields, so it is not exposed to workflow
@@ -50,10 +60,23 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      - name: Compute VITE_SUPABASE_URL from project ref
+        id: supabase_url
+        env:
+          PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          if [ -n "$PROJECT_REF" ]; then
+            echo "url=https://${PROJECT_REF}.supabase.co" >> "$GITHUB_OUTPUT"
+          else
+            echo "url=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build with GH Pages base path
         env:
           BASE_PATH: /casilla588/
-          VITE_WAITLIST_URL: ${{ vars.VITE_WAITLIST_URL }}
+          VITE_WAITLIST_URL: ${{ vars.WAITLIST_URL }}
+          VITE_SUPABASE_URL: ${{ steps.supabase_url.outputs.url }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
         run: npm run build
       - name: SPA 404 fallback (GH Pages serves 404.html for unknown paths)
         run: cp dist/index.html dist/404.html

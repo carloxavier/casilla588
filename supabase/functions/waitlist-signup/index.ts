@@ -2,14 +2,26 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ALLOWED_ORIGIN =
-  Deno.env.get("ALLOWED_ORIGIN") ?? "https://casilla588.es";
+
+// Comma-separated list of allowed origins. Empty/missing falls back to the
+// production custom domain. The first entry is also used as the CORS reply
+// when the request's Origin header doesn't match the list (so preflights
+// from disallowed origins get a stable, non-matching response rather than
+// echoing arbitrary input back).
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGIN") ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+if (ALLOWED_ORIGINS.length === 0) {
+  ALLOWED_ORIGINS.push("https://casilla588.es");
+}
+
 const RATE_LIMIT_PER_DAY = 5;
 const MAX_PORTFOLIO_BYTES = 4 * 1024;
 
 function corsHeaders(origin: string | null) {
   const allow =
-    origin === ALLOWED_ORIGIN ? ALLOWED_ORIGIN : ALLOWED_ORIGIN;
+    origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "POST, OPTIONS",

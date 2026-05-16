@@ -2,7 +2,7 @@
 # to main when anything under supabase/ changes. Also runnable manually from
 # the Actions tab.
 #
-# Required GitHub secrets (Settings -> Secrets and variables -> Actions):
+# Required GitHub secrets (Settings -> Secrets and variables -> Actions -> Secrets):
 #   SUPABASE_ACCESS_TOKEN   - personal access token from https://supabase.com/dashboard/account/tokens
 #   SUPABASE_PROJECT_REF    - the project ref (alphanumeric ID, visible in the
 #                             URL of your Supabase dashboard)
@@ -11,14 +11,18 @@
 #                             to hash IPs for rate-limiting. Generate once with
 #                             `openssl rand -hex 32`. No rotation needed; the function
 #                             mixes it with the calendar day for daily de-correlation.
-#   ALLOWED_ORIGIN          - public origin allowed by CORS, e.g. https://casilla588.es
+#
+# Optional GitHub variable (Variables tab, NOT Secrets — it's a public URL):
+#   ALLOWED_ORIGIN          - comma-separated list of origins allowed by CORS.
+#                             Example: "https://casilla588.es,https://carloxavier.github.io"
+#                             If unset, the function defaults to https://casilla588.es only.
 #
 # SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are auto-injected into the function
-# runtime by Supabase - you do NOT need to set them as secrets here.
+# runtime by Supabase - you do NOT need to set them here.
 #
-# This workflow uses only secret references (not user-controlled github.event
-# fields), so it is not exposed to workflow-injection. All secrets are passed
-# through env vars to shell commands.
+# This workflow only references vars/secrets contexts; it does not read any
+# user-controlled github.event.* fields, so it is not exposed to workflow
+# injection.
 
 name: Deploy Supabase
 
@@ -58,14 +62,16 @@ jobs:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: supabase db push
 
-      - name: Set edge function secrets
+      - name: Set required edge function secrets
         env:
           IP_HASH_SALT: ${{ secrets.IP_HASH_SALT }}
-          ALLOWED_ORIGIN: ${{ secrets.ALLOWED_ORIGIN }}
-        run: |
-          supabase secrets set \
-            IP_HASH_SALT="$IP_HASH_SALT" \
-            ALLOWED_ORIGIN="$ALLOWED_ORIGIN"
+        run: supabase secrets set IP_HASH_SALT="$IP_HASH_SALT"
+
+      - name: Set ALLOWED_ORIGIN (optional)
+        if: vars.ALLOWED_ORIGIN != ''
+        env:
+          ALLOWED_ORIGIN: ${{ vars.ALLOWED_ORIGIN }}
+        run: supabase secrets set ALLOWED_ORIGIN="$ALLOWED_ORIGIN"
 
       - name: Deploy edge function
         run: supabase functions deploy waitlist-signup

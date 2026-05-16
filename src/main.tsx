@@ -13,6 +13,7 @@ import "./styles/ledger.css";
 import "./styles/country.css";
 import "./styles/cta.css";
 import "./styles/sources.css";
+import "./styles/privacy.css";
 import "./styles/footer.css";
 import { App } from "./App";
 

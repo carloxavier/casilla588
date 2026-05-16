@@ -1,11 +1,56 @@
+import { useEffect, useRef } from "react";
 import { type PortfolioResult } from "../domain/calc";
 import { fmtEurInt } from "../domain/format";
+import { markMilestone, track } from "../lib/analytics";
 
 export function KeyMoment({ result }: { result: PortfolioResult }) {
-  if (result.positions.length === 0 || result.totals.bruto === 0) return null;
+  const ref = useRef<HTMLElement | null>(null);
+  const firedRef = useRef(false);
   const { totals } = result;
+  const hasResult = result.positions.length > 0 && totals.bruto > 0;
+
+  useEffect(() => {
+    if (!hasResult) {
+      firedRef.current = false;
+      return;
+    }
+    if (firedRef.current) return;
+    const target = ref.current;
+    if (!target) return;
+    if (typeof IntersectionObserver === "undefined") {
+      // Fallback: fire immediately if observer isn't available.
+      firedRef.current = true;
+      markMilestone("view_result");
+      track("view_result", {
+        net_eur: Math.round(totals.netoFinal),
+        recoverable_eur: Math.round(totals.recuperable588),
+        non_recoverable_eur: Math.round(totals.excesoOrigen),
+      });
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          firedRef.current = true;
+          markMilestone("view_result");
+          track("view_result", {
+            net_eur: Math.round(totals.netoFinal),
+            recoverable_eur: Math.round(totals.recuperable588),
+            non_recoverable_eur: Math.round(totals.excesoOrigen),
+          });
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasResult, totals]);
+
+  if (!hasResult) return null;
+
   return (
-    <section className="key-moment">
+    <section className="key-moment" ref={ref}>
       <p className="km-label">Recuperarías vía casilla 588 del Modelo 100</p>
       <div className="km-figure">
         <span className="km-symbol">€</span>

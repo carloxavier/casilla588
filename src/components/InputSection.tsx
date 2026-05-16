@@ -11,6 +11,7 @@ import { SAMPLE_PORTFOLIO } from "../data/samplePortfolio";
 import { ADAPTERS } from "../import";
 import { type Adapter, type Transaction } from "../import/types";
 import { validateRunningShares } from "../domain/transactions";
+import { track } from "../lib/analytics";
 
 const TAX_YEAR = 2025;
 const YEAR_START = `${TAX_YEAR}-01-01`;
@@ -61,6 +62,13 @@ export const InputSection = forwardRef<
   );
 
   const addStartingHolding = (ticker: string, shares: number) => {
+    const country = TICKERS.find((t) => t.t === ticker)?.country;
+    track("add_position", {
+      kind: "starting",
+      ticker,
+      country,
+      position_count_so_far: transactions.length,
+    });
     onChange([
       ...transactions,
       { ticker, date: YEAR_START, shares },
@@ -72,6 +80,13 @@ export const InputSection = forwardRef<
     date: string,
     shares: number, // signed
   ) => {
+    const country = TICKERS.find((t) => t.t === ticker)?.country;
+    track("add_position", {
+      kind: "movement",
+      ticker,
+      country,
+      position_count_so_far: transactions.length,
+    });
     onChange([...transactions, { ticker, date, shares }]);
   };
 
@@ -421,6 +436,13 @@ function ImportPanel({
   const ingest = (raw: string) => {
     const result = adapter.parse(raw, TAX_YEAR);
     setErrors(result.errors);
+    const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0).length;
+    track("paste_portfolio", {
+      adapter: adapter.id,
+      lines_count: lines,
+      valid_tickers: result.transactions.length,
+      invalid_tickers: result.errors.length,
+    });
     if (result.transactions.length > 0) {
       onImported(result.transactions);
       setInfo(

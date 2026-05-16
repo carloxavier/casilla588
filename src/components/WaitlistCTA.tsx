@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   isValidEmail,
   submitWaitlist,
   type WaitlistPayload,
 } from "../api/waitlist";
 import { type Transaction } from "../import/types";
+import { secondsSince, track } from "../lib/analytics";
 
 export function WaitlistCTA({
   transactions,
@@ -19,10 +20,41 @@ export function WaitlistCTA({
   >("idle");
   const [err, setErr] = useState("");
 
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const ctaViewedRef = useRef(false);
+
+  useEffect(() => {
+    if (ctaViewedRef.current) return;
+    const target = sectionRef.current;
+    if (!target) return;
+    if (typeof IntersectionObserver === "undefined") {
+      ctaViewedRef.current = true;
+      track("cta_viewed", {
+        seconds_since_calculate: secondsSince("calculate"),
+      });
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          ctaViewedRef.current = true;
+          track("cta_viewed", {
+            seconds_since_calculate: secondsSince("calculate"),
+          });
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidEmail(email)) {
       setErr("Email no parece válido.");
+      track("email_error", { error_type: "invalid_email" });
       return;
     }
     setErr("");
@@ -41,15 +73,23 @@ export function WaitlistCTA({
     const res = await submitWaitlist(payload);
     if (res.ok) {
       setStatus("ok");
+      track("email_submitted", {
+        has_saved_cartera: Boolean(payload.portfolio),
+        had_missing_tickers: Boolean(payload.missingTickers),
+        seconds_since_result: secondsSince("view_result"),
+      });
     } else {
       setStatus("error");
       setErr(res.error ?? "No se pudo enviar.");
+      track("email_error", {
+        error_type: res.error ?? "network_or_server",
+      });
     }
   };
 
   if (status === "ok") {
     return (
-      <section className="cta cta-ok">
+      <section className="cta cta-ok" ref={sectionRef}>
         <p className="cta-ok-mark">✓</p>
         <h2>Apuntado.</h2>
         <p>
@@ -64,7 +104,7 @@ export function WaitlistCTA({
   }
 
   return (
-    <section className="cta">
+    <section className="cta" ref={sectionRef}>
       <div className="cta-copy">
         <h2>¿Quieres una versión que haga esto solo cada semana?</h2>
         <p>

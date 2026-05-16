@@ -1,9 +1,11 @@
 import { buildPath } from "../lib/routing";
 
+type FooterView = "sources" | "privacy";
+
 export function Footer({
   onNavigate,
 }: {
-  onNavigate: (view: "sources", slug: string) => void;
+  onNavigate: (view: FooterView, slug: string) => void;
 }) {
   return (
     <footer className="site-footer">
@@ -24,6 +26,16 @@ export function Footer({
           }}
         >
           Sobre los datos
+        </a>
+        {" · "}
+        <a
+          href={buildPath("privacidad")}
+          onClick={(e) => {
+            e.preventDefault();
+            onNavigate("privacy", "privacidad");
+          }}
+        >
+          Privacidad
         </a>
         .
       </p>
