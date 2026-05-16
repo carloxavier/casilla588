@@ -1,0 +1,40 @@
+:root {
+  /* Paper palette */
+  --paper: #f5f1e8;
+  --paper-2: #ece6d6;
+  --paper-3: #e3dbc6;
+
+  /* Ink palette */
+  --ink: #1a1814;
+  --ink-2: #4a4438;
+  --ink-3: #7a7264;
+  --ink-4: #a89f8c;
+  --rule: rgba(26, 24, 20, 0.12);
+
+  /* Accent — terracota óxido */
+  --accent: #a8462e;
+  --accent-deep: #7a3220;
+  --accent-tint: rgba(168, 70, 46, 0.08);
+
+  /* Signal colors */
+  --good: #2f6f4e;
+  --warn: #b88a1a;
+  --bad: #8b3a2e;
+
+  /* Type stack */
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "Inter", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+
+  /* Spacing scale */
+  --gap-xs: 4px;
+  --gap-sm: 8px;
+  --gap-md: 16px;
+  --gap-lg: 24px;
+  --gap-xl: 40px;
+  --gap-2xl: 64px;
+
+  /* Layout widths */
+  --col-narrow: 760px;
+  --col-wide: 1120px;
+}

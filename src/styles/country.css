@@ -1,0 +1,65 @@
+.country-bar {
+  display: flex;
+  height: 36px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+}
+
+.cseg {
+  min-width: 4px;
+  transition: flex-grow 250ms ease;
+}
+
+.cseg-US { background: #4a6b8a; }
+.cseg-UK { background: #2f6f4e; }
+.cseg-NL { background: #d4881f; }
+.cseg-DE { background: #6c5b3f; }
+.cseg-CH { background: #a8462e; }
+.cseg-FR { background: #4f6f8f; }
+.cseg-IT { background: #6f8f4f; }
+
+.country-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--gap-sm) var(--gap-md);
+  list-style: none;
+  margin: var(--gap-md) 0 0;
+  padding: 0;
+}
+
+.country-legend li {
+  display: grid;
+  grid-template-columns: 12px 1fr auto auto;
+  gap: var(--gap-sm);
+  align-items: center;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--ink-2);
+  padding: 4px 0;
+}
+
+.cdot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.country-legend .cname {
+  color: var(--ink);
+}
+
+.country-legend .cbruto {
+  font-family: var(--mono);
+  color: var(--ink-3);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.country-legend .crec {
+  font-family: var(--mono);
+  color: var(--good);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}

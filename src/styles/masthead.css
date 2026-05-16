@@ -1,0 +1,41 @@
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: var(--gap-md);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: var(--gap-xl);
+}
+
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.005em;
+}
+
+.wordmark .wm-num {
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--accent);
+  font-size: 0.85em;
+  margin-left: 4px;
+}
+
+.masthead-nav a {
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 120ms, color 120ms;
+}
+
+.masthead-nav a:hover,
+.masthead-nav a.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}

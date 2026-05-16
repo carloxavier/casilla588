@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://casilla588.es/sitemap.xml

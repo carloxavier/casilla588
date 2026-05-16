@@ -1,0 +1,71 @@
+# Deploys Casilla 588's Supabase backend (migrations + edge function) on push
+# to main when anything under supabase/ changes. Also runnable manually from
+# the Actions tab.
+#
+# Required GitHub secrets (Settings -> Secrets and variables -> Actions):
+#   SUPABASE_ACCESS_TOKEN   - personal access token from https://supabase.com/dashboard/account/tokens
+#   SUPABASE_PROJECT_REF    - the project ref (alphanumeric ID, visible in the
+#                             URL of your Supabase dashboard)
+#   SUPABASE_DB_PASSWORD    - the database password set when the project was created
+#   IP_HASH_SALT            - random secret (~32 chars) used by the edge function
+#                             to hash IPs for rate-limiting. Generate once with
+#                             `openssl rand -hex 32`. No rotation needed; the function
+#                             mixes it with the calendar day for daily de-correlation.
+#   ALLOWED_ORIGIN          - public origin allowed by CORS, e.g. https://casilla588.es
+#
+# SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are auto-injected into the function
+# runtime by Supabase - you do NOT need to set them as secrets here.
+#
+# This workflow uses only secret references (not user-controlled github.event
+# fields), so it is not exposed to workflow-injection. All secrets are passed
+# through env vars to shell commands.
+
+name: Deploy Supabase
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/deploy-supabase.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        env:
+          PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase link --project-ref "$PROJECT_REF"
+
+      - name: Push database migrations
+        env:
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase db push
+
+      - name: Set edge function secrets
+        env:
+          IP_HASH_SALT: ${{ secrets.IP_HASH_SALT }}
+          ALLOWED_ORIGIN: ${{ secrets.ALLOWED_ORIGIN }}
+        run: |
+          supabase secrets set \
+            IP_HASH_SALT="$IP_HASH_SALT" \
+            ALLOWED_ORIGIN="$ALLOWED_ORIGIN"
+
+      - name: Deploy edge function
+        run: supabase functions deploy waitlist-signup

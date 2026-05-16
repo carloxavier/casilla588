@@ -1,0 +1,22 @@
+.site-footer {
+  margin-top: var(--gap-2xl);
+  padding-top: var(--gap-lg);
+  border-top: 1px solid var(--rule);
+}
+
+.site-footer p {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  line-height: 1.6;
+  max-width: var(--col-narrow);
+  margin: 0 0 var(--gap-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.site-footer a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

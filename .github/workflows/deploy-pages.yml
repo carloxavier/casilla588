@@ -1,0 +1,72 @@
+# Builds the Vite app and deploys it to GitHub Pages on push to main.
+#
+# Required GitHub configuration:
+#   1. Settings -> Pages: set "Source" to "GitHub Actions".
+#   2. Settings -> Secrets and variables -> Actions -> Variables tab, add:
+#        VITE_WAITLIST_URL  - the deployed Supabase function URL, e.g.
+#                             https://<project-ref>.functions.supabase.co/waitlist-signup
+#      (Use a Variable, not a Secret: the URL is embedded in the public bundle
+#      and is not sensitive.)
+#
+# This workflow only references vars/secrets contexts; it does not read any
+# user-controlled github.event.* fields, so it is not exposed to workflow
+# injection.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "tsconfig.json"
+      - "eslint.config.js"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build with GH Pages base path
+        env:
+          BASE_PATH: /casilla588/
+          VITE_WAITLIST_URL: ${{ vars.VITE_WAITLIST_URL }}
+        run: npm run build
+      - name: SPA 404 fallback (GH Pages serves 404.html for unknown paths)
+        run: cp dist/index.html dist/404.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

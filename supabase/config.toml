@@ -1,0 +1,27 @@
+# Supabase project config. The CLI reads this for both local dev and CI deploys.
+project_id = "casilla588"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+
+[auth]
+enabled = false
+
+[storage]
+enabled = false
+
+# The waitlist function is a public endpoint (no Supabase auth required) — it
+# does its own email validation and rate limiting. JWT verification must be
+# off so anon visitors can POST to it.
+[functions.waitlist-signup]
+verify_jwt = false

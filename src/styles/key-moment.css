@@ -1,0 +1,84 @@
+.key-moment {
+  margin: var(--gap-2xl) 0;
+  text-align: center;
+}
+
+.km-label {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  text-transform: lowercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+  margin: 0 0 var(--gap-md);
+}
+
+.km-figure {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-lg);
+}
+
+.km-symbol {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: var(--ink-3);
+}
+
+.km-number {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(4.5rem, 12vw, 9rem);
+  line-height: 1;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.km-suffix {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
+.km-annotation {
+  display: flex;
+  justify-content: center;
+  gap: var(--gap-xl);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+  font-family: var(--sans);
+}
+
+.km-annotation li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.km-annotation li span {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+.km-annotation li strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.15rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.km-annotation li.km-bad strong {
+  color: var(--bad);
+}
