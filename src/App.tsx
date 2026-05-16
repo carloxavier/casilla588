@@ -111,7 +111,7 @@ export function App() {
         )}
         <Footer onNavigate={navigate} />
       </div>
-      <PrivacyBanner />
+      <PrivacyBanner onNavigate={navigate} />
     </div>
   );
 }

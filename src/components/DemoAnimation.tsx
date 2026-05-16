@@ -205,46 +205,45 @@ export function DemoAnimation({
             )}
           </ul>
 
-          {currentStep >= 3 && (
-            <div className="demo-result">
-              <div className="demo-number">
-                <span className="dn-symbol">€</span>
-                <span className="dn-figure">
-                  {Math.round(animatedRecuperable).toLocaleString("es-ES")}
-                </span>
-                <span className="dn-suffix">/año</span>
-              </div>
-              <p className="demo-result-label">
-                Recuperable vía 588 con esta cartera
-              </p>
-              {currentStep >= 3 && (
-                <div
-                  className="demo-country-bar"
-                  aria-hidden={countryFill === 0}
-                >
-                  {result.byCountry.map((c) => (
-                    <div
-                      key={c.country}
-                      className={`cseg cseg-${c.country}`}
-                      style={{
-                        flexGrow: c.bruto * countryFill,
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
+          {/* Always rendered so the slot reserves layout space. Visibility is
+              opacity-driven, which keeps mobile scroll position stable while
+              the timeline progresses through steps 3 → 4. */}
+          <div
+            className={`demo-result ${currentStep >= 3 ? "is-visible" : ""}`}
+            aria-hidden={currentStep < 3}
+          >
+            <div className="demo-number">
+              <span className="dn-symbol">€</span>
+              <span className="dn-figure">
+                {Math.round(animatedRecuperable).toLocaleString("es-ES")}
+              </span>
+              <span className="dn-suffix">/año</span>
             </div>
-          )}
+            <p className="demo-result-label">
+              Recuperable vía 588 con esta cartera
+            </p>
+            <div className="demo-country-bar">
+              {result.byCountry.map((c) => (
+                <div
+                  key={c.country}
+                  className={`cseg cseg-${c.country}`}
+                  style={{
+                    flexGrow: c.bruto * countryFill,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
 
-          {currentStep === 4 && (
-            <button
-              type="button"
-              className={`demo-cta ${ctaPulse ? "pulse" : ""}`}
-              onClick={onCta}
-            >
-              Probar con mi cartera
-            </button>
-          )}
+          <button
+            type="button"
+            className={`demo-cta ${currentStep === 4 ? "is-visible" : ""} ${ctaPulse ? "pulse" : ""}`}
+            onClick={onCta}
+            aria-hidden={currentStep < 4}
+            tabIndex={currentStep < 4 ? -1 : 0}
+          >
+            Probar con mi cartera
+          </button>
         </div>
       </div>
 

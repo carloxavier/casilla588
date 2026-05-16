@@ -3,7 +3,11 @@ import { buildPath } from "../lib/routing";
 
 const STORAGE_KEY = "c588_privacy_acknowledged";
 
-export function PrivacyBanner() {
+export function PrivacyBanner({
+  onNavigate,
+}: {
+  onNavigate: (view: "privacy", slug: string) => void;
+}) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -24,11 +28,26 @@ export function PrivacyBanner() {
   };
 
   return (
-    <div className="privacy-banner" role="region" aria-label="Aviso de privacidad">
+    <div
+      className="privacy-banner"
+      role="region"
+      aria-label="Aviso de privacidad"
+    >
       <p>
         Esta herramienta registra de forma anónima cómo se usa para mejorarla.
         Sin cookies de terceros, sin tracking entre sitios.{" "}
-        <a href={buildPath("privacidad")}>Más información</a>.
+        <a
+          href={buildPath("privacidad")}
+          onClick={(e) => {
+            // Route through the SPA navigator so the user's portfolio state
+            // survives the click. A plain href would cause a full reload.
+            e.preventDefault();
+            onNavigate("privacy", "privacidad");
+          }}
+        >
+          Más información
+        </a>
+        .
       </p>
       <button type="button" onClick={ack} className="btn-primary">
         Entendido

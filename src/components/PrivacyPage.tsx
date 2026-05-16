@@ -1,7 +1,7 @@
 // Privacy / data-handling explainer. Linked from the footer and from the
 // privacy banner.
 
-const CONTACT_EMAIL = "privacidad@casilla588.es"; // TODO: replace with the real address
+const CONTACT_ISSUES_URL = "https://github.com/carloxavier/casilla588/issues";
 
 export function PrivacyPage() {
   return (
@@ -83,8 +83,13 @@ export function PrivacyPage() {
             <code>{`localStorage.getItem("c588_session_id")`}</code>.
           </li>
           <li>
-            Envía ese identificador (un UUID) a{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+            Abre un issue en{" "}
+            <a href={CONTACT_ISSUES_URL} rel="noopener noreferrer" target="_blank">
+              el repositorio del proyecto
+            </a>{" "}
+            con ese identificador (un UUID). No publiques información personal
+            adicional: el UUID es suficiente para localizar y borrar tus
+            eventos.
           </li>
         </ol>
         <p>
