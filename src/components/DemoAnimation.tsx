@@ -50,9 +50,11 @@ export function DemoAnimation({ onCta }: { onCta: () => void }) {
     <section className="demo" aria-label="Vista previa de la calculadora">
       <div className="demo-window">
         <div className="demo-titlebar" aria-hidden="true">
-          <span className="demo-dot demo-dot-red" />
-          <span className="demo-dot demo-dot-yellow" />
-          <span className="demo-dot demo-dot-green" />
+          <div className="demo-titlebar-dots">
+            <span className="demo-dot demo-dot-red" />
+            <span className="demo-dot demo-dot-yellow" />
+            <span className="demo-dot demo-dot-green" />
+          </div>
           <span className="demo-titlebar-title">casilla588.es</span>
           <span className="demo-titlebar-spacer" />
         </div>
