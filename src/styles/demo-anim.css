@@ -1,212 +1,85 @@
+/* Hero "demo" — a fixed-height preview framed as a macOS window with a
+   single animation: the recuperable number counting up. Layout is static so
+   content below never jumps as the counter loops. */
+
 .demo {
-  background: var(--paper-2);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: var(--gap-lg);
-  margin-bottom: var(--gap-2xl);
-}
-
-.demo-head {
+  margin: 0 auto var(--gap-2xl);
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: var(--gap-lg);
+  justify-content: center;
 }
 
-.demo-step {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1rem;
-  color: var(--ink-2);
-  margin: 0;
+.demo-window {
+  width: 100%;
+  max-width: 540px;
+  background: var(--paper);
+  border: 1px solid var(--ink-4);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 4px 24px rgba(26, 24, 20, 0.1);
 }
 
-.demo-step-num {
-  font-family: var(--mono);
-  font-style: normal;
-  color: var(--accent);
-  margin-right: 8px;
-  font-size: 0.78rem;
-}
-
-.demo-controls {
-  display: flex;
-  gap: var(--gap-md);
-  font-family: var(--mono);
-}
-
-.demo-stage {
+.demo-titlebar {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: var(--gap-lg);
-}
-
-@media (max-width: 760px) {
-  .demo-stage {
-    grid-template-columns: 1fr;
-  }
-}
-
-.demo-inputs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
-
-.demo-panel {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  padding: var(--gap-md);
-  opacity: 0.45;
-  transition: opacity 250ms ease;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
-.demo-panel.active {
-  opacity: 1;
-  border-color: var(--accent);
-}
-
-.demo-panel-label {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ink-3);
-}
-
-.demo-row {
-  display: flex;
-  gap: var(--gap-sm);
+  grid-template-columns: auto 1fr auto;
   align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(to bottom, var(--paper-3), var(--paper-2));
+  border-bottom: 1px solid var(--rule);
 }
 
-.demo-input {
-  font-family: var(--mono);
-  font-size: 0.95rem;
-  flex: 1;
-  padding: 6px 10px;
-  background: var(--paper-2);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  min-height: 18px;
-  color: var(--ink);
+.demo-titlebar > :first-child {
+  display: flex;
+  gap: 6px;
 }
 
-.demo-textarea {
-  font-family: var(--mono);
-  font-size: 0.88rem;
-  padding: var(--gap-sm);
-  background: var(--paper-2);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  margin: 0;
-  min-height: 90px;
-  color: var(--ink);
-  white-space: pre-wrap;
-}
-
-.demo-btn {
+.demo-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   display: inline-block;
-  padding: 6px 14px;
-  background: var(--accent);
-  color: var(--paper);
-  font-family: var(--sans);
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border-radius: 2px;
-  align-self: flex-start;
-  transition: transform 80ms, background 80ms;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.15);
 }
 
-.demo-btn.pressed {
-  transform: scale(0.96);
-  background: var(--accent-deep);
+.demo-dot-red {
+  background: #ff5f57;
+}
+.demo-dot-yellow {
+  background: #febc2e;
+}
+.demo-dot-green {
+  background: #28c840;
 }
 
-.demo-outputs {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  padding: var(--gap-md);
+.demo-titlebar-title {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.demo-titlebar-spacer {
+  /* Mirrors the dots' width so the title is visually centered. */
+  width: 54px;
+}
+
+.demo-content {
+  padding: var(--gap-xl) var(--gap-lg) var(--gap-lg);
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
-}
-
-.demo-positions {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  /* Sized to hold five items (max number of positions in the demo) so the
-     list doesn't grow as items "land" during the timeline. Without this,
-     content below the demo shifts up/down across every step on mobile. */
-  min-height: 162px;
-}
-
-.demo-position {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--mono);
-  font-size: 0.92rem;
-  padding: 4px 8px;
-  background: var(--paper-2);
-  border-radius: 2px;
-  animation: dropIn 240ms ease;
-}
-
-@keyframes dropIn {
-  from {
-    opacity: 0;
-    transform: translateX(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.demo-position.empty {
-  background: transparent;
-  color: var(--ink-4);
-  font-style: italic;
-  animation: none;
-}
-
-.demo-position .dp-ticker {
-  color: var(--accent);
-  font-weight: 500;
-}
-
-.demo-position .dp-shares {
-  color: var(--ink-2);
-}
-
-/* Reserves layout space across all steps. Steps 1-2 keep the slot blank but
-   sized so the page below the demo doesn't shift when steps 3-4 reveal it. */
-.demo-result {
   text-align: center;
-  padding-top: var(--gap-md);
-  border-top: 1px solid var(--rule);
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 250ms ease-out;
 }
 
-.demo-result.is-visible {
-  opacity: 1;
-  visibility: visible;
+.demo-caption {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  text-transform: lowercase;
+  margin: 0;
 }
 
 .demo-number {
@@ -214,6 +87,7 @@
   justify-content: center;
   align-items: baseline;
   gap: 4px;
+  margin: 0;
 }
 
 .dn-symbol {
@@ -225,80 +99,98 @@
 .dn-figure {
   font-family: var(--serif);
   font-weight: 300;
-  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  font-size: clamp(3rem, 9vw, 4.8rem);
   color: var(--accent);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .dn-suffix {
   font-family: var(--mono);
   color: var(--ink-3);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .demo-result-label {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ink-3);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--ink-2);
   margin: 0;
+}
+
+.demo-result-label abbr[title] {
+  font-family: var(--mono);
+  font-style: normal;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--ink-4);
+  cursor: help;
 }
 
 .demo-country-bar {
   display: flex;
-  height: 14px;
+  height: 12px;
   border-radius: 2px;
   overflow: hidden;
   border: 1px solid var(--rule);
-  margin-top: var(--gap-sm);
+  margin: 4px 0 0;
+}
+
+.demo-country-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gap-sm) var(--gap-md);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}
+
+.demo-country-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.demo-country-legend .cdot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
 }
 
 .demo-cta {
-  align-self: stretch;
+  align-self: center;
+  margin-top: var(--gap-sm);
   background: var(--accent);
   color: var(--paper);
   border: 0;
-  padding: 12px var(--gap-lg);
+  padding: 12px var(--gap-xl);
   font-family: var(--sans);
+  font-weight: 500;
   font-size: 0.92rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: pointer;
-  border-radius: 2px;
-  margin-top: var(--gap-sm);
-  position: relative;
-  /* Layout-stable visibility: button always present, faded out until step 4. */
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 250ms ease-out;
+  border-radius: 3px;
+  transition: background 120ms ease;
 }
 
-.demo-cta.is-visible {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+.demo-cta:hover {
+  background: var(--accent-deep);
 }
 
-.demo-cta.pulse {
-  animation: ctaPulse 1.3s ease-in-out infinite;
-}
-
-@keyframes ctaPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(168, 70, 46, 0.6);
+@media (max-width: 540px) {
+  .demo-content {
+    padding: var(--gap-lg) var(--gap-md);
+    gap: var(--gap-sm);
   }
-  50% {
-    box-shadow: 0 0 0 10px rgba(168, 70, 46, 0);
+  .demo-titlebar-title {
+    font-size: 0.72rem;
   }
-}
-
-.demo-static-note {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: var(--ink-3);
-  margin: var(--gap-md) 0 0;
-  text-align: center;
 }
