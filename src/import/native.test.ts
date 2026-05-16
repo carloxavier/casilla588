@@ -75,6 +75,20 @@ describe("nativeAdapter", () => {
     expect(r.transactions[0].shares).toBe(50);
   });
 
+  it("resolves ticker aliases to the canonical code", () => {
+    // BATS has aliases ["BAT", "BATS.L"] in tickers.ts. All three should
+    // produce a transaction with ticker = "BATS" (the canonical).
+    expect(parse("BAT 80").transactions).toEqual([
+      { ticker: "BATS", date: "2025-01-01", shares: 80 },
+    ]);
+    expect(parse("BATS 80").transactions).toEqual([
+      { ticker: "BATS", date: "2025-01-01", shares: 80 },
+    ]);
+    expect(parse("BATS.L 80").transactions).toEqual([
+      { ticker: "BATS", date: "2025-01-01", shares: 80 },
+    ]);
+  });
+
   it("rejects digit-prefixed 'tickers' as unrecognized format", () => {
     // Malformed movement (date without dashes). Must not be misread as a
     // position with ticker "2025".
@@ -98,20 +112,19 @@ SHEL,60,GB,1.29,GBP,Otro UK 0%
 ALV,15,DE,15.40,EUR,Alemania 26.375%/15%
 ASML,5,NL,6.40,EUR,Países Bajos 15%`;
 
-    it("imports the 6 known tickers and flags the 2 unknown ones", () => {
+    it("imports all 8 tickers — O is supported, BAT resolves via alias to BATS", () => {
       const r = parse(csv);
+      expect(r.errors).toEqual([]);
       expect(r.transactions).toEqual([
         { ticker: "KO", date: "2025-01-01", shares: 100 },
         { ticker: "JNJ", date: "2025-01-01", shares: 50 },
+        { ticker: "O", date: "2025-01-01", shares: 40 },
         { ticker: "NESN", date: "2025-01-01", shares: 30 },
+        // BAT alias normalises to canonical BATS
+        { ticker: "BATS", date: "2025-01-01", shares: 80 },
         { ticker: "SHEL", date: "2025-01-01", shares: 60 },
         { ticker: "ALV", date: "2025-01-01", shares: 15 },
         { ticker: "ASML", date: "2025-01-01", shares: 5 },
-      ]);
-      expect(r.errors).toHaveLength(2);
-      expect(r.errors.map((e) => e.reason)).toEqual([
-        "Ticker desconocido: O",
-        "Ticker desconocido: BAT",
       ]);
     });
 
@@ -120,17 +133,6 @@ ASML,5,NL,6.40,EUR,Países Bajos 15%`;
       expect(
         r.errors.find((e) => e.reason === "Formato no reconocido."),
       ).toBeUndefined();
-    });
-
-    it("reports the correct line numbers for the unknown tickers", () => {
-      const r = parse(csv);
-      // The two errors should point at lines 4 (O) and 6 (BAT) in the
-      // original input — header is line 1, KO is 2, JNJ is 3, O is 4,
-      // NESN is 5, BAT is 6.
-      const oError = r.errors.find((e) => e.reason.includes("O"));
-      const batError = r.errors.find((e) => e.reason.includes("BAT"));
-      expect(oError?.line).toBe(4);
-      expect(batError?.line).toBe(6);
     });
   });
 });

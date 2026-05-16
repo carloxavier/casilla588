@@ -7,6 +7,10 @@ export interface TickerInfo {
   name: string;
   country: CountryCode;
   ccy: Currency;
+  // Other symbols that should resolve to this ticker (e.g. broker-specific
+  // variants like "BATS.L" or shortened forms like "BAT"). All uppercase.
+  // Aliases must not collide with any other ticker's `t` field.
+  aliases?: string[];
 }
 
 export const TICKERS: TickerInfo[] = [
@@ -21,6 +25,7 @@ export const TICKERS: TickerInfo[] = [
   { t: "CVX", name: "Chevron", country: "US", ccy: "USD" },
   { t: "VZ", name: "Verizon", country: "US", ccy: "USD" },
   { t: "T", name: "AT&T", country: "US", ccy: "USD" },
+  { t: "O", name: "Realty Income", country: "US", ccy: "USD" },
   { t: "KMB", name: "Kimberly-Clark", country: "US", ccy: "USD" },
   { t: "CL", name: "Colgate-Palmolive", country: "US", ccy: "USD" },
   { t: "ABT", name: "Abbott Laboratories", country: "US", ccy: "USD" },
@@ -52,7 +57,16 @@ export const TICKERS: TickerInfo[] = [
   { t: "ULVR", name: "Unilever", country: "UK", ccy: "GBP" },
   { t: "DGE", name: "Diageo", country: "UK", ccy: "GBP" },
   { t: "GSK", name: "GSK", country: "UK", ccy: "GBP" },
-  { t: "BATS", name: "British American Tobacco", country: "UK", ccy: "GBP" },
+  {
+    t: "BATS",
+    name: "British American Tobacco",
+    country: "UK",
+    ccy: "GBP",
+    // "BAT" is the most common shorthand among Spanish investors; "BATS.L"
+    // is the full LSE Bloomberg symbol. Note: "BTI" is the NYSE ADR and is
+    // NOT an alias — its withholding tax country is US, not UK.
+    aliases: ["BAT", "BATS.L"],
+  },
   { t: "RIO", name: "Rio Tinto", country: "UK", ccy: "GBP" },
   { t: "IMB", name: "Imperial Brands", country: "UK", ccy: "GBP" },
 

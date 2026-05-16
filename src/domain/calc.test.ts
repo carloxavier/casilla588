@@ -91,6 +91,26 @@ describe("calcPosition", () => {
     const r = calcPosition(fullYear("NESN", 10), "NESN", 2025);
     expect(r!.excesoOrigen).toBeCloseTo(r!.bruto * 0.2, 4);
   });
+
+  it("Realty Income (O) computes from 13 monthly payments in 2025", () => {
+    const r = calcPosition(fullYear("O", 100), "O", 2025);
+    expect(r!.paymentsHit).toBe(13);
+    expect(r!.paymentsTotal).toBe(13);
+    // US 30%/15% treatment applies the same as any US stock
+    expect(r!.recuperable588).toBeCloseTo(r!.bruto * 0.15, 4);
+    expect(r!.excesoOrigen).toBeCloseTo(r!.bruto * 0.15, 4);
+  });
+
+  it("British American Tobacco resolves via canonical BATS with UK 0% withholding", () => {
+    const r = calcPosition(fullYear("BATS", 80), "BATS", 2025);
+    expect(r!.country).toBe("UK");
+    // UK 0% nominal → no retention, no recuperable, no exceso
+    expect(r!.retOrigen).toBe(0);
+    expect(r!.recuperable588).toBe(0);
+    expect(r!.excesoOrigen).toBe(0);
+    // IRPF applies fully on the bruto
+    expect(r!.irpfTrasDeduccion).toBeCloseTo(r!.bruto * IRPF_RATE, 6);
+  });
 });
 
 describe("W-8BEN toggle", () => {

@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { TICKERS } from "../data/tickers";
+import { TICKERS, resolveTickerCode } from "../data/tickers";
 import { SAMPLE_PORTFOLIO } from "../data/samplePortfolio";
 import { ADAPTERS } from "../import";
 import { type Adapter, type Transaction } from "../import/types";
@@ -204,11 +204,18 @@ function TickerAutocomplete({
   const matches = useMemo(() => {
     if (!upper) return [] as typeof TICKERS;
     const starts = TICKERS.filter((t) => t.t.startsWith(upper));
+    const aliasMatch = TICKERS.filter(
+      (t) =>
+        !starts.includes(t) &&
+        t.aliases?.some((a) => a.startsWith(upper)),
+    );
     const nameMatch = TICKERS.filter(
       (t) =>
-        !t.t.startsWith(upper) && t.name.toUpperCase().includes(upper),
+        !starts.includes(t) &&
+        !aliasMatch.includes(t) &&
+        t.name.toUpperCase().includes(upper),
     );
-    return [...starts, ...nameMatch].slice(0, 6);
+    return [...starts, ...aliasMatch, ...nameMatch].slice(0, 6);
   }, [upper]);
 
   useEffect(() => {
@@ -297,8 +304,8 @@ function StartingHoldingsPanel({
 
   const submit = () => {
     setErr("");
-    const t = ticker.toUpperCase().trim();
-    if (!TICKERS.some((x) => x.t === t)) {
+    const canonical = resolveTickerCode(ticker);
+    if (!canonical) {
       setErr("Ticker desconocido.");
       return;
     }
@@ -307,7 +314,7 @@ function StartingHoldingsPanel({
       setErr("Acciones inválidas.");
       return;
     }
-    onAdd(t, n);
+    onAdd(canonical, n);
     setTicker("");
     setShares("");
     firstInputRef.current?.focus();
@@ -357,8 +364,8 @@ function MovementsPanel({
 
   const submit = () => {
     setErr("");
-    const t = ticker.toUpperCase().trim();
-    if (!TICKERS.some((x) => x.t === t)) {
+    const canonical = resolveTickerCode(ticker);
+    if (!canonical) {
       setErr("Ticker desconocido.");
       return;
     }
@@ -368,7 +375,7 @@ function MovementsPanel({
       return;
     }
     const signed = side === "venta" ? -n : n;
-    onAdd(t, date, signed);
+    onAdd(canonical, date, signed);
     setTicker("");
     setShares("");
   };

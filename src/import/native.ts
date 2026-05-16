@@ -1,4 +1,4 @@
-import { TICKERS } from "../data/tickers";
+import { resolveTickerCode } from "../data/tickers";
 import { type Adapter, type ImportError, type Transaction } from "./types";
 
 // Tolerant of trailing extra columns so users can paste broker exports or
@@ -46,10 +46,6 @@ function parseNumber(s: string): number {
   return parseFloat(s.replace(",", "."));
 }
 
-function isKnownTicker(t: string): boolean {
-  return TICKERS.some((info) => info.t === t);
-}
-
 export const nativeAdapter: Adapter = {
   id: "native",
   label: "Formato Casilla 588",
@@ -66,12 +62,12 @@ export const nativeAdapter: Adapter = {
       const mov = raw.match(MOVEMENT_RE);
       if (mov) {
         const [, date, tickerRaw, verbRaw, qtyRaw] = mov;
-        const ticker = tickerRaw.toUpperCase();
-        if (!isKnownTicker(ticker)) {
+        const ticker = resolveTickerCode(tickerRaw);
+        if (!ticker) {
           errors.push({
             line: lineNo,
             raw,
-            reason: `Ticker desconocido: ${ticker}`,
+            reason: `Ticker desconocido: ${tickerRaw.toUpperCase()}`,
           });
           continue;
         }
@@ -93,12 +89,12 @@ export const nativeAdapter: Adapter = {
       const pos = raw.match(POSITION_RE);
       if (pos) {
         const [, tickerRaw, qtyRaw] = pos;
-        const ticker = tickerRaw.toUpperCase();
-        if (!isKnownTicker(ticker)) {
+        const ticker = resolveTickerCode(tickerRaw);
+        if (!ticker) {
           errors.push({
             line: lineNo,
             raw,
-            reason: `Ticker desconocido: ${ticker}`,
+            reason: `Ticker desconocido: ${tickerRaw.toUpperCase()}`,
           });
           continue;
         }

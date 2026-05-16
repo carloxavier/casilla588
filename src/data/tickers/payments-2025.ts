@@ -86,6 +86,25 @@ export const PAYMENTS_2025: Record<string, DividendPayment[]> = {
     { exDivDate: "2025-07-10", amount: 0.2775, amountEur: 0.237 },
     { exDivDate: "2025-10-10", amount: 0.2775, amountEur: 0.2399 },
   ],
+  O: [
+    // source: https://stockanalysis.com/stocks/o/dividend/ (cross-checked vs. dividendmax + SEC 8-K filings)
+    // 13 ex-div dates in calendar 2025 (Realty Income shifted to early-month
+    // ex-divs over the year; Oct has two and Dec 31 pays Jan 2026).
+    { exDivDate: "2025-01-02", amount: 0.264, amountEur: 0.2558 },
+    { exDivDate: "2025-02-03", amount: 0.264, amountEur: 0.257 },
+    { exDivDate: "2025-03-03", amount: 0.268, amountEur: 0.2561 },
+    { exDivDate: "2025-04-01", amount: 0.2685, amountEur: 0.2489 },
+    // FX fallback: 2025-04-30 (ECB closed for Labour Day)
+    { exDivDate: "2025-05-01", amount: 0.2685, amountEur: 0.2361 },
+    { exDivDate: "2025-06-02", amount: 0.2685, amountEur: 0.2351 },
+    { exDivDate: "2025-07-01", amount: 0.269, amountEur: 0.2278 },
+    { exDivDate: "2025-08-01", amount: 0.269, amountEur: 0.2359 },
+    { exDivDate: "2025-09-02", amount: 0.269, amountEur: 0.231 },
+    { exDivDate: "2025-10-01", amount: 0.2695, amountEur: 0.2299 },
+    { exDivDate: "2025-10-31", amount: 0.2695, amountEur: 0.2333 },
+    { exDivDate: "2025-11-28", amount: 0.2695, amountEur: 0.233 },
+    { exDivDate: "2025-12-31", amount: 0.27, amountEur: 0.2298 },
+  ],
   SHEL: [
     // source: https://stockanalysis.com/quote/lon/SHEL/dividend/
     { exDivDate: "2025-02-13", amount: 0.2779, amountEur: 0.3336 },
